@@ -79,8 +79,6 @@ class User:
             analysis[transaction["category"]] += transaction["amount"]
         return analysis
 
-
-
 class Transaction:
     def __init__(self, user, amount, category):
         self.user = user
