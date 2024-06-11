@@ -57,8 +57,12 @@ def update_db_schema():
     try:
         cursor.execute('ALTER TABLE endorsements ADD COLUMN summary TEXT')
     except sqlite3.OperationalError:
-        # The column already exists
-        pass
+        pass  # The column already exists
+    
+    try:
+        cursor.execute('ALTER TABLE candidates ADD COLUMN history TEXT')
+    except sqlite3.OperationalError:
+        pass  # The column already exists
 
     conn.commit()
     conn.close()
