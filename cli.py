@@ -7,26 +7,30 @@ DB_PATH = 'db/votemind.db'
 def register():
     username = input("Enter username: ")
     password = getpass("Enter password: ")
+    identification_number = input("Enter identification number: ")
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
     try:
-        cursor.execute("INSERT INTO users (username, password) VALUES (?, ?)", (username, password))
+        cursor.execute("INSERT INTO users (username, password, identification_number) VALUES (?, ?, ?)", 
+                       (username, password, identification_number))
         conn.commit()
         print("User registered successfully!")
     except sqlite3.IntegrityError:
-        print("Username already exists!")
+        print("Username or identification number already exists!")
     finally:
         conn.close()
 
 def login():
     username = input("Enter username: ")
     password = getpass("Enter password: ")
+    identification_number = input("Enter identification number: ")
 
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
-    cursor.execute("SELECT id FROM users WHERE username=? AND password=?", (username, password))
+    cursor.execute("SELECT id FROM users WHERE username=? AND password=? AND identification_number=?", 
+                   (username, password, identification_number))
     user = cursor.fetchone()
 
     conn.close()
@@ -35,7 +39,7 @@ def login():
         print("Login successful!")
         return user[0]
     else:
-        print("Invalid username or password!")
+        print("Invalid username, password, or identification number!")
         return None
 
 def view_candidates():
