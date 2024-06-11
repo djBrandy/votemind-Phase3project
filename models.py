@@ -1,9 +1,15 @@
+# Importing the sqlite3 module to interact with a SQLite database
 import sqlite3
 
+
+# Function to initialize the database
 def initialize_db():
+    # Connecting to your SQLite database
     conn = sqlite3.connect('db/votemind.db')
+     # Creating a cursor object to execute SQL commands
     cursor = conn.cursor()
     
+    # Creating the users table if it does not already exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -12,7 +18,8 @@ def initialize_db():
         identification_number TEXT UNIQUE NOT NULL
     )
     ''')
-    
+
+    # Creating the candidates table if it does not already exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS candidates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -21,6 +28,7 @@ def initialize_db():
     )
     ''')
     
+    # Creating the votes table if it does not already exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS votes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -31,6 +39,8 @@ def initialize_db():
     )
     ''')
     
+
+    # Creating the endorsements table if it does not already exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS endorsements (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -41,8 +51,12 @@ def initialize_db():
     )
     ''')
     
+    # Committing the changes to the database
     conn.commit()
+
+    # Closing the connection to the database
     conn.close()
 
 if __name__ == "__main__":
+    # Running the initialize_db function when the script is run directly
     initialize_db()
