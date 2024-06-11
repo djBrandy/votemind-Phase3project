@@ -1,173 +1,257 @@
-import sqlite3  # Importing the sqlite3 module to interact with a SQLite database
-from getpass import getpass  # Importing the getpass module to securely handle password inputs
-from models import initialize_db  # Importing the initialize_db function from your models.py file
+import sqlite3
+from getpass import getpass
+from models import initialize_db, update_db_schema
 
-DB_PATH = 'db/votemind.db'  # Setting the path to your SQLite database file
+DB_PATH = 'db/votemind.db'
+ADMIN_CODE = "AAQWAJZAMQW"
 
-# Function to register a new user
 def register():
-    username = input("Enter username: ")  # Prompting the user to enter their username
-    password = getpass("Enter password: ")  # Securely prompting the user to enter their password
-    identification_number = input("Enter identification number: ")  # Prompting the user to enter their identification number
+    username = input("Enter username: ")
+    password = getpass("Enter password: ")
+    identification_number = input("Enter identification number: ")
 
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
 
     try:
-        # Inserting the new user's details into the users table in your database
         cursor.execute("INSERT INTO users (username, password, identification_number) VALUES (?, ?, ?)", 
                        (username, password, identification_number))
-        conn.commit()  # Committing the changes to the database
-        print("User registered successfully!")  # Informing the user that their registration was successful
+        conn.commit()
+        print("User registered successfully!")
     except sqlite3.IntegrityError:
-        # Informing the user that their chosen username or identification number already exists in the database
         print("Username or identification number already exists!")
     finally:
-        conn.close()  # Closing the connection to the database
+        conn.close()
 
-# Function to log in a user
 def login():
-    username = input("Enter username: ")  # Prompting the user to enter their username
-    password = getpass("Enter password: ")  # Securely prompting the user to enter their password
-    identification_number = input("Enter identification number: ")  # Prompting the user to enter their identification number
+    username = input("Enter username: ")
+    password = getpass("Enter password: ")
+    identification_number = input("Enter identification number: ")
 
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
-    # Checking if the entered username, password, and identification number match any entry in the users table
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     cursor.execute("SELECT id FROM users WHERE username=? AND password=? AND identification_number=?", 
                    (username, password, identification_number))
-    user = cursor.fetchone()  # Fetching the first row of the results
+    user = cursor.fetchone()
 
-    conn.close()  # Closing the connection to the database
+    conn.close()
 
     if user:
-        print("Login successful!")  # Informing the user that their login was successful
-        return user[0]  # Returning the user's ID
+        print("Login successful!")
+        return user[0]
     else:
-        # Informing the user that their entered username, password, or identification number is invalid
         print("Invalid username, password, or identification number!")
-        return None  # Returning None
+        return None
 
-# Function to view all candidates
+def admin_login():
+    code = input("Enter admin code: ")
+
+    if code == ADMIN_CODE:
+        print("Admin login successful!")
+        return True
+    else:
+        print("Invalid admin code!")
+        return False
+
 def view_candidates():
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
-    cursor.execute("SELECT id, name, party FROM candidates")  # Selecting all candidates from the candidates table
-    candidates = cursor.fetchall()  # Fetching all rows of the results
-    conn.close()  # Closing the connection to the database
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("SELECT id, first_name, last_name, party, description, image_url FROM candidates")
+    candidates = cursor.fetchall()
+    conn.close()
 
     if candidates:
-        print("Candidates:")  # Printing a header for the list of candidates
+        print("Candidates:")
         for candidate in candidates:
-            # Printing each candidate's ID, name, and party
-            print(f"{candidate[0]}. {candidate[1]} ({candidate[2]})")
+            print(f"{candidate[0]}. {candidate[1]} {candidate[2]} ({candidate[3]}) - {candidate[4]}")
+            print(f"Image URL: {candidate[5]}\n")
     else:
-        print("No candidates found.")  # Informing the user that no candidates were found
+        print("No candidates found.")
 
-# Function to vote for a candidate
+def view_votes():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+    SELECT candidates.id, candidates.first_name, candidates.last_name, candidates.party, 
+           COUNT(votes.id) as vote_count
+    FROM candidates
+    LEFT JOIN votes ON candidates.id = votes.candidate_id
+    GROUP BY candidates.id, candidates.first_name, candidates.last_name, candidates.party
+    ''')
+    results = cursor.fetchall()
+    conn.close()
+
+    if results:
+        print("Vote Counts:")
+        for result in results:
+            print(f"{result[0]}. {result[1]} {result[2]} ({result[3]}) - {result[4]} votes")
+    else:
+        print("No votes found.")
+
+def view_endorsements():
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute('''
+    SELECT candidates.id, candidates.first_name, candidates.last_name, candidates.party, 
+           COUNT(endorsements.id) as endorsement_count,
+           GROUP_CONCAT(endorsements.summary, '\n') as summaries
+    FROM candidates
+    LEFT JOIN endorsements ON candidates.id = endorsements.candidate_id
+    GROUP BY candidates.id, candidates.first_name, candidates.last_name, candidates.party
+    ''')
+    results = cursor.fetchall()
+    conn.close()
+
+    if results:
+        print("Endorsement Counts and Summaries:")
+        for result in results:
+            print(f"{result[0]}. {result[1]} {result[2]} ({result[3]}) - {result[4]} endorsements")
+            print(f"Endorsement Summaries:\n{result[5]}")
+    else:
+        print("No endorsements found.")
+
 def vote(user_id):
-    view_candidates()  # Displaying all candidates
-    candidate_id = int(input("Enter the candidate ID to vote for: "))  # Prompting the user to enter the ID of the candidate they want to vote for
+    view_candidates()
+    candidate_id = int(input("Enter the candidate ID to vote for: "))
 
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
-
-    try:
-        # Inserting the user's vote into the votes table
-        cursor.execute("INSERT INTO votes (user_id, candidate_id) VALUES (?, ?)", (user_id, candidate_id))
-        conn.commit()  # Committing the changes to the database
-        print("Vote recorded successfully!")  # Informing the user that their vote was recorded successfully
-    except sqlite3.IntegrityError:
-        print("You have already voted!")  # Informing the user that they have already voted
-    finally:
-        conn.close()  # Closing the connection to the database
-
-# Function to endorse a candidate
-def endorse(user_id):
-    view_candidates()  # Displaying all candidates
-    candidate_id = int(input("Enter the candidate ID to endorse: "))  # Prompting the user to enter the ID of the candidate they want to endorse
-
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
-
-    try:
-        # Inserting the user's endorsement into the endorsements table
-        cursor.execute("INSERT INTO endorsements (user_id, candidate_id) VALUES (?, ?)", (user_id, candidate_id))
-        conn.commit()  # Committing the changes to the database
-        print("Endorsement recorded successfully!")  # Informing the user that their endorsement was recorded successfully
-    finally:
-        conn.close()  # Closing the connection to the database
-
-# Function to add a new candidate
-def add_candidate():
-    name = input("Enter candidate name: ")  # Prompting the user to enter the candidate's name
-    party = input("Enter candidate party: ")  # Prompting the user to enter the candidate's party
-
-    conn = sqlite3.connect(DB_PATH)  # Connecting to your SQLite database
-    cursor = conn.cursor()  # Creating a cursor object to execute SQL commands
-    # Inserting the new candidate's details into the candidates table
-    cursor.execute("INSERT INTO candidates (name, party) VALUES (?, ?)", (name, party))
-    conn.commit()  # Committing the changes to the database
-    conn.close()  # Closing the connection to the database
-
-    print("Candidate added successfully!")  # Informing the user that the candidate was added successfully
-
-# Main function to run the application
-def main():
-    initialize_db()  # Initializing the database
-    user_id = None  # Initializing the user_id variable to None
-    print("Welcome to Votemind!")  # Printing a welcome message
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
     
-    # Initial prompt for registration or login
-    while user_id is None:
-        print("\n1. Register\n2. Login\n3. Exit")
-        choice = input("Enter your choice: ")  # Prompting the user to enter their choice
+    # Check if the user has already voted
+    cursor.execute("SELECT id FROM votes WHERE user_id=?", (user_id,))
+    vote = cursor.fetchone()
+    
+    if vote:
+        print("You have already voted!")
+    else:
+        try:
+            cursor.execute("INSERT INTO votes (user_id, candidate_id) VALUES (?, ?)", (user_id, candidate_id))
+            conn.commit()
+            print("Vote recorded successfully!")
+        except sqlite3.IntegrityError:
+            print("An error occurred while recording your vote.")
+        finally:
+            conn.close()
+
+def endorse(user_id):
+    view_candidates()
+    candidate_id = int(input("Enter the candidate ID to endorse: "))
+    summary = input("Enter a short summary for your endorsement: ")
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+
+    # Check if the user has already endorsed
+    cursor.execute("SELECT id FROM endorsements WHERE user_id=?", (user_id,))
+    endorsement = cursor.fetchone()
+
+    if endorsement:
+        print("You have already endorsed a candidate!")
+    else:
+        try:
+            cursor.execute("INSERT INTO endorsements (user_id, candidate_id, summary) VALUES (?, ?, ?)", (user_id, candidate_id, summary))
+            conn.commit()
+            print("Endorsement recorded successfully!")
+        except sqlite3.IntegrityError:
+            print("An error occurred while recording your endorsement.")
+        finally:
+            conn.close()
+
+def add_candidate():
+    first_name = input("Enter candidate first name: ")
+    last_name = input("Enter candidate last name: ")
+    party = input("Enter candidate party: ")
+    description = input("Enter candidate description: ")
+    image_url = input("Enter candidate image URL: ")
+
+    conn = sqlite3.connect(DB_PATH)
+    cursor = conn.cursor()
+    cursor.execute("INSERT INTO candidates (first_name, last_name, party, description, image_url) VALUES (?, ?, ?, ?, ?)", 
+                   (first_name, last_name, party, description, image_url))
+    conn.commit()
+    conn.close()
+
+    print("Candidate added successfully!")
+
+def main():
+    initialize_db()
+    update_db_schema()
+    user_id = None
+    admin_logged_in = False
+    print("Welcome to Votemind!")
+    
+    while user_id is None and not admin_logged_in:
+        print("\n1. Register\n2. Login\n3. Admin Login\n4. Exit")
+        choice = input("Enter your choice: ")
 
         if choice == '1':
-            register()  # Registering a new user
+            register()
         elif choice == '2':
-            user_id = login()  # Logging in a user
+            user_id = login()
         elif choice == '3':
-            print("Goodbye!")  # Exiting the application
+            admin_logged_in = admin_login()
+        elif choice == '4':
+            print("Goodbye!")
             return
         else:
-            print("Invalid choice. Please try again.")  # Informing the user that their choice was invalid
+            print("Invalid choice. Please try again.")
     
-    # Main menu after successful login
     while True:
-        print("\n1. View Candidates\n2. Vote\n3. Endorse\n4. Add Candidate\n5. Logout\n6. Exit")
-        choice = input("Enter your choice: ")  # Prompting the user to enter their choice
+        if admin_logged_in:
+            print("\n1. Add Candidate\n2. Logout\n3. Exit")
+            choice = input("Enter your choice: ")
 
-        if choice == '1':
-            view_candidates()  # Viewing all candidates
-        elif choice == '2':
-            vote(user_id)  # Voting for a candidate
-        elif choice == '3':
-            endorse(user_id)  # Endorsing a candidate
-        elif choice == '4':
-            add_candidate()  # Adding a new candidate
-        elif choice == '5':
-            user_id = None  # Logging out the user
-            print("Logged out successfully!")  # Informing the user that they have been logged out
-            # Go back to the initial prompt for registration or login
-            while user_id is None:
-                print("\n1. Register\n2. Login\n3. Exit")
-                choice = input("Enter your choice: ")  # Prompting the user to enter their choice
-
-                if choice == '1':
-                    register()  # Registering a new user
-                elif choice == '2':
-                    user_id = login()  # Logging in a user
-                elif choice == '3':
-                    print("Goodbye!")  # Exiting the application
-                    return
-                else:
-                    print("Invalid choice. Please try again.")  # Informing the user that their choice was invalid
-        elif choice == '6':
-            print("Goodbye!")  # Exiting the application
-            break
+            if choice == '1':
+                add_candidate()
+            elif choice == '2':
+                admin_logged_in = False
+                print("Logged out successfully!")
+                user_id = None
+                break
+            elif choice == '3':
+                print("Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
         else:
-            print("Invalid choice. Please try again.")  # Informing the user that their choice was invalid
+            print("\n1. View Candidates\n2. View Votes\n3. View Endorsements\n4. Vote\n5. Endorse\n6. Logout\n7. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == '1':
+                view_candidates()
+            elif choice == '2':
+                view_votes()
+            elif choice == '3':
+                view_endorsements()
+            elif choice == '4':
+                vote(user_id)
+            elif choice == '5':
+                endorse(user_id)
+            elif choice == '6':
+                user_id = None
+                print("Logged out successfully!")
+                break
+            elif choice == '7':
+                print("Goodbye!")
+                break
+            else:
+                print("Invalid choice. Please try again.")
+        
+        while user_id is None and not admin_logged_in:
+            print("\n1. Register\n2. Login\n3. Admin Login\n4. Exit")
+            choice = input("Enter your choice: ")
+
+            if choice == '1':
+                register()
+            elif choice == '2':
+                user_id = login()
+            elif choice == '3':
+                admin_logged_in = admin_login()
+            elif choice == '4':
+                print("Goodbye!")
+                return
+            else:
+                print("Invalid choice. Please try again.")
 
 if __name__ == "__main__":
-    main()  # Running the main function when the script is run directly
+    main()
