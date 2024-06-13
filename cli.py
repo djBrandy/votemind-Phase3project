@@ -2,7 +2,8 @@ from db_init import initialize_db, update_db_schema
 from auth_functions import register, login, admin_login
 from user_functions import (view_candidates, view_votes, view_votes_graphically, 
                             view_endorsements, vote, endorse, delete_endorsement)
-from admin_functions import add_candidate, view_candidate_history
+from admin_functions import (add_candidate, update_candidate, delete_candidate, 
+                             view_registered_candidates, view_users_voted, view_candidate_history)
 
 def main():
     # Initialize and update the database
@@ -40,19 +41,29 @@ def main():
 
     while True:
         if admin_logged_in:
-            print("\nAdmin Menu:\n1. Add Candidate\n2. View Candidate History\n3. Logout\n4. Exit")
+            print("\nAdmin Menu:\n1. Add Candidate\n2. Update Candidate\n3. Delete Candidate\n"
+                  "4. View Candidate History\n5. View Registered Candidates\n6. View Users Voted\n"
+                  "7. Logout\n8. Exit")
             choice = input("Enter your choice: ")
 
             if choice == '1':
                 add_candidate()
             elif choice == '2':
-                view_candidate_history()
+                update_candidate()
             elif choice == '3':
+                delete_candidate()
+            elif choice == '4':
+                view_candidate_history()
+            elif choice == '5':
+                view_registered_candidates()
+            elif choice == '6':
+                view_users_voted()
+            elif choice == '7':
                 admin_logged_in = False
                 print("Logged out successfully!")
                 user_id = None
                 break
-            elif choice == '4':
+            elif choice == '8':
                 print("Goodbye!")
                 break
             else:
