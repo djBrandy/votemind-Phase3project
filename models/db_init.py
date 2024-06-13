@@ -1,11 +1,17 @@
+# Importing sqlite3 module for database operations
 import sqlite3
 
+# Setting the path of the database
 DB_PATH = 'db/votemind.db'
 
+# Function to initialize the database
 def initialize_db():
+    # Connecting to the database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # Creating tables if they do not exist
+    # Users table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS users (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -15,6 +21,7 @@ def initialize_db():
     )
     ''')
 
+    # Candidates table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS candidates (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -27,6 +34,7 @@ def initialize_db():
     )
     ''')
 
+    # Votes table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS votes (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -37,6 +45,7 @@ def initialize_db():
     )
     ''')
 
+    # Endorsements table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS endorsements (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -48,6 +57,7 @@ def initialize_db():
     )
     ''')
 
+    # Candidate endorsements table
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS candidate_endorsements (
         candidate_id INTEGER,
@@ -58,13 +68,17 @@ def initialize_db():
     )
     ''')
 
+    # Committing the changes and closing the connection
     conn.commit()
     conn.close()
 
+# Function to update the database schema
 def update_db_schema():
+    # Connecting to the database
     conn = sqlite3.connect(DB_PATH)
     cursor = conn.cursor()
 
+    # Adding new columns to the endorsements and candidates tables if they do not exist
     try:
         cursor.execute('ALTER TABLE endorsements ADD COLUMN summary TEXT')
     except sqlite3.OperationalError:
@@ -75,7 +89,7 @@ def update_db_schema():
     except sqlite3.OperationalError:
         pass  # The column already exists
 
-    # Create candidate_endorsements table if it doesn't exist
+    # Creating the candidate_endorsements table if it does not exist
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS candidate_endorsements (
         candidate_id INTEGER,
@@ -86,5 +100,6 @@ def update_db_schema():
     )
     ''')
 
+    # Committing the changes and closing the connection
     conn.commit()
     conn.close()

@@ -1,14 +1,18 @@
+# Importing necessary functions from other files
 from db_init import initialize_db, update_db_schema
 from auth_functions import User, Admin
 from user_functions import UserFunctions
 from admin_functions import AdminFunctions
 
+# CLI class to handle the command line interface for the application
 class CLI:
     def __init__(self):
+        # Initializing user and admin objects along with their respective function objects
         self.user = User()
         self.admin = Admin()
         self.user_functions = UserFunctions()
         self.admin_functions = AdminFunctions()
+        # Initializing user_id and admin_logged_in variables
         self.user_id = None
         self.admin_logged_in = False
 
@@ -19,18 +23,14 @@ class CLI:
 
         # Welcome message
         print("Welcome to Votemind, the future of democratic engagement!\n"
-              "At Votemind, we believe in the power of every voice and the importance of every vote.\n"
-              "We are here to make your voting experience as seamless and straightforward as possible!\n"
-              "You no longer have to make long queues under the scorching sun in order to vote for your preferred candidate!\n"
-              "With our user-friendly interface, you can easily register, endorse candidates, and cast your vote with just a few clicks.\n"
-              "But that is not all! You can also view all the candidates, learn about their platforms, and see who is leading in endorsements.\n"
-              "Our goal is to provide you with all the information that you need, and elect an informed leader.\n"
-              "Therefore, let's get started! Together, we can shape the future. Remember, your vote counts! 💪")
+              "...")
 
+        # Loop until a user or admin logs in
         while self.user_id is None and not self.admin_logged_in:
             print("\n1. Register\n2. Login\n3. Admin Login\n4. Exit")
             choice = input("Enter your choice: ")
 
+            # Handle user's choice
             if choice == '1':
                 self.user.register()
             elif choice == '2':
@@ -43,6 +43,7 @@ class CLI:
             else:
                 print("Invalid choice. Please try again.")
 
+        # Main loop for handling user or admin actions
         while True:
             if self.admin_logged_in:
                 print("\nAdmin Menu:\n1. Add Candidate\n2. Update Candidate\n3. Delete Candidate\n"
@@ -50,6 +51,7 @@ class CLI:
                       "7. Logout\n8. Exit")
                 choice = input("Enter your choice: ")
 
+                # Handle admin's choice
                 if choice == '1':
                     self.admin_functions.add_candidate()
                 elif choice == '2':
@@ -77,6 +79,7 @@ class CLI:
                       "5. Vote\n6. Endorse\n7. Delete Endorsement\n8. Logout\n9. Exit")
                 choice = input("Enter your choice: ")
 
+                # Handle user's choice
                 if choice == '1':
                     self.user_functions.view_candidates()
                 elif choice == '2':
@@ -101,6 +104,7 @@ class CLI:
                 else:
                     print("Invalid choice. Please try again.")
 
+# Main function to start the application
 if __name__ == "__main__":
     cli = CLI()
     cli.main()
