@@ -58,6 +58,51 @@ cd votemind-Phase3project
 ### for windows:
 [Click here to go to the official python Website:](https://www.python.org/downloads/)
 
+Click the download button for the latest stable version (usually, a button labeled "Download Python 3.x.x").
+Run the Installer:
+
+After downloading, run the installer.
+Important: During installation, check the box that says "Add Python to PATH" at the beginning of the installation window. This ensures Python can be run from the Command Prompt.
+Select "Install Now" for the default installation.
+Verify Installation:
+
+Open command prompt (cmd) and type:
+
+```
+python --version
+```
+to confirm its installation, it should return a value.
+
+
+### for Ubuntu/Debian:
+run the following commands on your terminal:
+```
+sudo apt update
+```
+```
+sudo apt install python3
+```
+```
+python3 --version
+```
+to confirm its installation, it should return a value.
+
+
+### for macOS:
+Install Homebrew (if not installed)
+```
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+Install python:
+```
+brew install python
+```
+
+Verify installation:
+```
+python3 --version
+```
 
 
 ### Navigate to the models directory:
