@@ -103,9 +103,18 @@ Verify installation:
 ```
 python3 --version
 ```
-
+It should return a value.
 
 ### Navigate to the models directory:
 ```
 cd models
+```
+
+### run the application:
+```
+python cli.py
+```
+OR
+```
+python3 cli.py
 ```
