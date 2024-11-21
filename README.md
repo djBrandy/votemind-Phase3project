@@ -26,14 +26,18 @@ Welcome to **Votemind**, a cutting-edge platform designed to revolutionize the d
 
 
 ## Running the Command Line Interface (CLI):
+
 ### Install Git (if not already installed):
 #### On Ubuntu/Debian:
 Open your terminal and run the following commands:
-``` 
+```
+sudo apt update
+sudo apt install git
 
+```
+#### On macOS (via Homebrew):
+```brew install git
+```
 
-## How to Run the Application
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/username/repository.git
+#### On Windows:
+[git](https://git-scm.com/)
