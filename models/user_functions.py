@@ -1,9 +1,13 @@
+import os
 # Importing sqlite3 module for database operations and matplotlib for data visualization
 import sqlite3
 import matplotlib.pyplot as plt
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
 # Setting the path of the database
-DB_PATH = 'db/votemind.db'
+DB_PATH = os.path.join(BASE_DIR, '..', 'db', 'votemind.db')
 
 # UserFunctions class to handle the user related operations
 class UserFunctions:

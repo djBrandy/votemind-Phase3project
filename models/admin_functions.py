@@ -1,8 +1,11 @@
+import os
 # Importing sqlite3 module for database operations
 import sqlite3
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Setting the path of the database
-DB_PATH = 'db/votemind.db'
+DB_PATH = os.path.join(BASE_DIR, '..', 'db', 'votemind.db')
 
 # AdminFunctions class to handle the admin related operations
 class AdminFunctions:

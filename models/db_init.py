@@ -1,8 +1,13 @@
+import os
 # Importing sqlite3 module for database operations
 import sqlite3
 
+
+# getting the directory of the current script:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Setting the path of the database
-DB_PATH = 'db/votemind.db'
+DB_PATH = os.path.join(BASE_DIR, '..', 'db', 'votemind.db')
 
 # Function to initialize the database
 def initialize_db():

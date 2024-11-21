@@ -1,9 +1,13 @@
+import os
 # Importing sqlite3 module for database operations and getpass for secure password input
 import sqlite3
 from getpass import getpass
 
+# getting the directory of the current script:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Setting the path of the database
-DB_PATH = 'db/votemind.db'
+DB_PATH = os.path.join(BASE_DIR, '..', 'db', 'votemind.db')
 
 # User class to handle the user related operations
 class User:
@@ -21,7 +25,7 @@ class User:
             else:
                 print("Enter a valid Kenyan identification number. Please ensure that you are an adult and an ID holder!")
 
-        # Connecting to the database and executing the INSERT query
+        # connecting to the database and executing the INSERT query
         conn = sqlite3.connect(DB_PATH)
         cursor = conn.cursor()
 
