@@ -41,3 +41,26 @@ sudo apt install git
 
 #### On Windows:
 [git](https://git-scm.com/)
+
+
+## Open your terminal and run the following commands:
+```
+git clone https://github.com/djBrandy/votemind-Phase3project.git
+```
+
+## Navigate to the repository:
+```
+cd votemind-Phase3project
+```
+
+
+## install python on your device if not already installed:
+### for windows:
+[Click here to go to the official python Website:](https://www.python.org/downloads/)
+
+
+
+### Navigate to the models directory:
+```
+cd models
+```
