@@ -36,10 +36,14 @@ sudo apt install git
 
 ```
 #### On macOS (via Homebrew):
-```brew install git
+Install git on macOS:
+```
+brew install git
 ```
 
 #### On Windows:
+Click the link below to install git:
+
 [git](https://git-scm.com/)
 
 
@@ -118,3 +122,6 @@ OR
 ```
 python3 cli.py
 ```
+
+
+### Create your account, login, endorse, view votes and vote for your leader!
