@@ -21,3 +21,19 @@ Welcome to **Votemind**, a cutting-edge platform designed to revolutionize the d
 - **View Registered Candidates:** See the total number of registered candidates.
 - **View Users Voted:** Check the number of users who have cast their votes.
 - **View Candidate History:** Access the detailed history of each candidate.
+
+
+
+
+## Running the Command Line Interface (CLI):
+### Install Git (if not already installed):
+#### On Ubuntu/Debian:
+Open your terminal and run the following commands:
+``` 
+
+
+## How to Run the Application
+
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/username/repository.git
